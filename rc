@@ -1,0 +1,18 @@
+# -- logging
+HELLO=true
+rcPrint() { 
+  if [[ $HELLO == true ]]; then echo "--- rc-lite:"; HELLO=false; fi
+  echo " $1 [$2] - ${*:3}"
+}
+rcLog() { rcPrint "INFO" "$1" "${*:2}"; } 
+rcError() { rcPrint "ERROR" "$1" "${*:2}"; }
+rcNoGit() { rcError "$1" "Could not install module dependencies (run 'apt install git')"; }
+
+# -- sourcing
+mkdir -p $HOME/.local/bin
+export PATH="$PATH:$HOME/.local/bin"
+for module (~/.zsh/__modules/*(N.)) source $module
+
+# -- cleaning
+if [ $HELLO = false ]; then; echo "--- done"; fi;
+unset HELLO rcPrint rcLog rcError rcNoGit loadModule

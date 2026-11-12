@@ -1,0 +1,18 @@
+# ------ syntax highlighting ------
+
+if ! [ -f ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+  if ! command -v git >/dev/null 2>&1; then
+    rcNoGit "zsh-syntax-highlighting"
+    return 1
+  fi
+
+  SYNTAX_HIGHLIGHTING_URL="https://github.com/zsh-users/zsh-syntax-highlighting.git"
+
+  rcLog "zsh-syntax-highlighting" "Cloning from '${SYNTAX_HIGHLIGHTING_URL}'"
+  if ! git clone $SYNTAX_HIGHLIGHTING_URL ~/.zsh/zsh-syntax-highlighting; then
+    rcError "zsh-syntax-highlighting" "Failed"
+  fi
+fi
+source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+unset SYNTAX_HIGHLIGHTING_URL

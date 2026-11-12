@@ -1,0 +1,19 @@
+# ------ auto-suggestions ------
+
+
+if ! [ -f ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+  if ! command -v git >/dev/null 2>&1; then
+    rcNoGit "zsh-autosuggestions"
+    return 1
+  fi
+
+  AUTOSUGGESTIONS_URL="https://github.com/zsh-users/zsh-autosuggestions.git"
+
+  rcLog "zsh-autosuggestions" "Not found, cloning from '${AUTOSUGGESTIONS_URL}'"
+  if ! git clone --depth 1 $AUTOSUGGESTIONS_URL ~/.zsh/zsh-autosuggestions; then
+    rcError "zsh-autosuggestions" "Failed"
+  fi
+fi
+source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+unset AUTOSUGGESTIONS_URL

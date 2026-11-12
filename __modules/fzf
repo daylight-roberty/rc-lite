@@ -1,0 +1,129 @@
+# FD download details
+# --> version, architecture and checksum from https://github.com/sharkdp/fd/releases/
+# --> use 'unknown-linux-musl' (standalone binary)
+FD_VERSION="10.5.2"
+FD_ARCH="x86_64"
+FD_SHA256="7e2d07fa2b8807642aaec67b7e2972a9fbe4db26fcb340a7372392db42b26694"
+FD_FILENAME="fd-v${FD_VERSION}-${FD_ARCH}-unknown-linux-musl"
+FD_URL="https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/${FD_FILENAME}.tar.gz"
+
+
+# FZF download details
+# --> version, architecture and checksum from https://github.com/junegunn/fzf/releases/
+FZF_VERSION="0.75.0"
+FZF_ARCH="linux_amd64"
+FZF_SHA256="0d6640f83582d991cf429754baad64b07e3a4e439a6019670f4b91da1314141c"
+FZF_URL="https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-${FZF_ARCH}.tar.gz"
+
+
+log() { rcLog "fzf" "${*:1}"; }
+error() { rcError "fzf" "${*:1}"; }
+
+cleanup() { unset FD_VERSION FD_ARCH FD_SHA256 FD_FILENAME FD_URL FZF_VERSION FZF_ARCH FZF_SHA256 FZF_URL log error; }
+
+
+# ------ fd ------
+
+if ! [ -f ~/.local/bin/fd ]; then
+  if ! command -v git >/dev/null 2>&1; then
+    rcNoGit "fzf"
+    cleanup; unset cleanup
+    return
+  fi
+
+  FD_TMP="$HOME/fd-temp.tar.gz"
+
+  log "Binary not found, downloading"
+
+  if ! curl -L --fail --silent $FD_URL -o $FD_TMP; then
+    error "Download failed"; return 1
+  fi
+
+  if ! echo "${FD_SHA256}  ${FD_TMP}" | sha256sum -c - >/dev/null 2>&1; then
+    error "Checksum failed ('${FD_SHA256}'), deleting downloaded file..."; rm $FD_TMP; return 1
+  else
+    tar -xOzf $FD_TMP $FD_FILENAME/fd > ~/.local/bin/fd
+    chmod +x ~/.local/bin/fd
+  fi
+  log "Success"
+  rm $FD_TMP
+fi
+
+
+# ------ fzf ------
+
+if ! [ -f ~/.local/bin/fzf ]; then
+  if ! command -v git >/dev/null 2>&1; then
+    rcNoGit "fzf"
+    cleanup; unset cleanup
+    return 1
+  fi
+
+
+  FZF_TMP="$HOME/fzf-temp.tar.gz"
+
+  log "Binary not found, downloading"
+
+  if ! curl -L --fail --silent $FZF_URL -o $FZF_TMP; then
+    error "Download failed"; return 1
+  fi
+
+  if ! echo "${FZF_SHA256}  ${FZF_TMP}" | sha256sum -c - >/dev/null 2>&1; then
+      error "Checksum failed ('${FZF_SHA256}'), deleting downloaded file..."; rm $FZF_TMP; return 1
+  else
+    tar -xOzf $FZF_TMP fzf > ~/.local/bin/fzf
+    chmod +x ~/.local/bin/fzf
+  fi
+  log "Success"
+  rm $FZF_TMP
+fi
+
+if ! [ -f ~/.zsh/fzf/shell/key-bindings.zsh ]; then
+  log() { rcLog "fzf" "${*:1}"; }
+  error() { rcError "fzf" "${*:1}"; }
+
+  log "Cloning shell integrations from git..."
+  FZF_SHELL="https://github.com/junegunn/fzf.git"
+  if ! git clone --depth 1 $FZF_SHELL ~/.zsh/fzf; then
+    error "Could not clone shell integrations from ${FZF_SHELL}"
+  else
+    log "Success"
+  fi
+fi
+
+
+
+# ------ shell integration ------
+
+if [ -f ~/.zsh/fzf/shell/key-bindings.zsh ]; then
+    source ~/.zsh/fzf/shell/key-bindings.zsh
+else
+  rcError "FZF" "Key bindings shell integration not found (${HOME}/.zsh/fzf/shell/key-bindings.zsh"
+fi
+
+if [ -f ~/.zsh/fzf/shell/completion.zsh ]; then
+    source ~/.zsh/fzf/shell/completion.zsh
+else
+  rcError "FZF" "Completions shell integration not found (${HOME}/.zsh/fzf/shell/completion.zsh)"
+fi
+
+eval "$(fzf --zsh)"
+
+export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix"
+
+_fzf_compgen_path() {
+  fd --hidden . "$1"
+}
+
+_fzf_compgen_dir() {
+  fd --type=d --hidden . "$1"
+}
+
+# match colours to shell
+export FZF_DEFAULT_OPTS="--color=fg:-1,hl:4,fg+:2,hl+:4,info:2,prompt:4,pointer:2,marker:4,spinner:4"
+
+
+# done ------
+cleanup; unset cleanup

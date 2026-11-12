@@ -1,0 +1,11 @@
+randompass() {
+  echo '\nRandom Passwords -->\n'
+  for ((n=0; n<2; n++)); do
+    dd if=/dev/urandom count=1 2>/dev/null | base64 | cut -c-12
+  done
+
+  echo '\nUUIDs -->\n'
+  for ((n=0; n<3; n++)); do
+    cat /proc/sys/kernel/random/uuid | tr '[:upper:]' '[:lower:]'
+  done
+}

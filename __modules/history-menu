@@ -1,0 +1,20 @@
+# ------ history menu (ctrl+r) ------
+
+autoload -U up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey '^[[A' up-line-or-beginning-search
+bindkey '^[[B' down-line-or-beginning-search
+
+# use truenas colours
+zstyle ':completion:*:default' list-colors 'ma=01;32'
+zstyle ':completion:*:descriptions' format '%F{blue}-- %d --%f'
+
+setopt share_history
+setopt hist_expire_dups_first
+setopt hist_ignore_dups
+setopt hist_verify
+
+HISTFILE=~/.histfile
+HISTSIZE=1000
+SAVEHIST=10000
