@@ -1,8 +1,47 @@
 # ------ posh prompt ------
 
-# allow dual width characters
+# colour settings
+#
+# use named colours: blue, red, green, black, gray, white, magenta, yellow, cyan
+#
+#     COLOUR_USERNAME="%{${fg[green]}%}"
+#
+#  or integers 0-255 for xterm colours:
+#
+#     COLOUR_USERNAME='%F{123}'
+#
+# to see the xterm colours,
+
+show-xterm-colours() {
+        for i in {0..255}; do print -Pn "%F{$i}$i%f "; done; echo
+}
+
+#  run the above function (type 'show-xterm-colours')
+
+
+COLOUR_USERNAME="%{${fg[green]}%}"
+COLOUR_AT="%{${fg[white]}%}"
+COLOUR_HOST="%{${fg[default]}%}"
+COLOUR_PATH="%{${fg[blue]}%}"
+COLOUR_PROMPT="%{${fg[yellow]}%}"
+COLOUR_RESET="%{${reset_color}%}"
+
+
+# static prompt:
+#
+#   if your terminal is configured with a nerd font
+#   you can use one of these -->               
+#
+#   or else any old ascii string will do <3 =)
+
+STATIC_PROMPT=''
+
+
+# these lines allow dual width nerd font characters, else chaos ensues
 export LANG="${LANG:-C.UTF-8}"
 export LC_ALL="${LC_ALL:-${LANG}}"
+# and this line loads the colors function explicitly
+autoload -U colors && colors
 
-# use truenas colours
-PROMPT=$'\n'"%B%F{green}%n %F{white}@ %B%F{gray}%m%f%b"$'\n'"%B%F{blue}%~%f%b %F{yellow} > %f%F{default}%f"
+# finally, we build out the actual prompt
+PROMPT=$'\n'"${COLOUR_USERNAME}%n ${COLOUR_AT}@ %B${COLOUR_HOST}%m%f"$'\n'"%B${COLOUR_PATH}%~%f ${COLOUR_PROMPT}${STATIC_PROMPT} > %f${COL_RESET}"
