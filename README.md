@@ -20,6 +20,7 @@ You'll need zsh, curl and git as prerequisites
 2. Change your default shell to zsh
 3. Source the ~/.zsh/rc file
 4. Set zsh as your default shell
+
 This should do it:
 ```zsh
 cd ~
