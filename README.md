@@ -32,7 +32,11 @@ eval $(which zsh)
 ```
 ## How it works
 The ~/.zsh/rc file in turn sources every file in ~/.zsh/__modules
+
 It also contains a standardised logging function for the downstream modules for consistency
+
 Plugin modules each check if their respective plugins are installed. If not, they are downloaded from github
+
 You can change the version/architecture/checksum for plugin downloads via module variables
-Plugins are enabled once confirmed installed
+
+Once a plugin is confirmed as installed it is enabled
